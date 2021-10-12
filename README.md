@@ -1,4 +1,4 @@
-# StorX-api
+# StorX-API
 A REST API for [StorX](https://github.com/aaviator42/StorX).
 
 Current library version: `3.5` | `2020-10-11`  
@@ -8,7 +8,7 @@ License: `AGPLv3`
 
 ## About
 
-StorX API allows you to interact with your StorX DB files over a network. 
+The StorX API allows you to interact with your StorX DB files over a network. 
 
 Simply place your DB files, `StorX.php` and `receiver.php` on a server, and now the DB files can be operated on using the API exposed by `receiver.php`.
 
