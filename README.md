@@ -17,6 +17,11 @@ Simply place your DB files, `StorX.php` and `receiver.php` on a server, and now 
 
 
 ## Configuration
+
+Place `receiver.php` and `StorX.php` in the same folder, or modify the `require` statement at the top of the receiver to point to wherever `StorX.php` is.
+
+In `StorX.php`, ensure that `THROW_EXCEPTIONS` is set to `FALSE`.
+
 There are three constants that you can modify at the top of `receiver.php`:
  * `DATA_DIR`: Points to the root directory where DB files are stored. Note that the API *does not disallow* requests to DB files outside of this folder.
  * `USE_AUTH`: If this is `true`, then API requests will fail if they don't include the correct password in the payload. 
