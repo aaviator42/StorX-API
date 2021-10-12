@@ -18,7 +18,7 @@ Simply place your DB files, `StorX.php` and `receiver.php` on a server, and now 
 
 ## Configuration
 There are three constants that you can modify at the top of `receiver.php`:
- * `DATA_DIR`: Points to the root directory where DB files are stored. Note that the API *does not disallow* request to DB files outside of this folder.
+ * `DATA_DIR`: Points to the root directory where DB files are stored. Note that the API *does not disallow* requests to DB files outside of this folder.
  * `USE_AUTH`: If this is `true`, then API requests will fail if they don't include the correct password in the payload. 
  * `PASSWORD_HASH`: A hash generated using PHP's `password_hash()` with `PASSWORD_BCRYPT`.  
  See [this](https://github.com/aaviator42/hashgen) script to make simplify this process. 
@@ -37,7 +37,7 @@ Refer below for a list of endpoints, and what HTTP methods should be used to int
 
 If the receiver is using authentication, then include the password as a key in the payload.
 
-For example, let's say the API password is "`1234`" and you want to write a key `username` with value `aaviator42` to the DB file `testDB.dat`. You would send a `PUT` request to `<url>/receiver.php/writeKey` with the following request body:
+For example, let's say the API receiver password is `1234` and you want to write a key `username` with value `aaviator42` to the DB file `testDB.dat`. You would send a `PUT` request to `<url>/receiver.php/writeKey` with the following request body:
 
 ```json
 {
