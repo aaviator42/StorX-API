@@ -2,7 +2,7 @@
 A REST API for [StorX](https://github.com/aaviator42/StorX).
 
 Current library version: `3.5` | `2020-10-11`  
-Current DB file version: `3.0`
+
 
 License: `AGPLv3`
 
