@@ -68,9 +68,6 @@ switch($method){
 			case 'ping':
 				pong();
 			break;
-			case 'openFile':
-				openFile();
-			break;
 			case 'checkFile':
 				checkFile();
 			break;
@@ -142,7 +139,9 @@ function printOutput($code = 200){
 function pong(){
 	global $input, $output;
 	
-	if($input["version"] === "1.1"){
+	$output["version"] = "3.5";
+	
+	if($input["version"] === "3.5"){
 		$output["pong"] = "OK";
 	} else {
 		$output["pong"] = "ERR";
