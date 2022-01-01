@@ -1,7 +1,7 @@
 # StorX-API
 A REST API for [StorX](https://github.com/aaviator42/StorX).
 
-Current library version: `3.5` | `2020-10-11`  
+Current library version: `3.6` | `2021-12-31`  
 
 
 License: `AGPLv3`
@@ -10,7 +10,7 @@ License: `AGPLv3`
 
 The StorX API allows you to interact with your StorX DB files over a network. 
 
-Simply place your DB files, `StorX.php` and `receiver.php` on a server, and now the DB files can be operated on using the API exposed by `receiver.php`.
+Simply place your DB files, `StorX.php` and `StorX-API.php` on a server, and now the DB files can be operated on using the API exposed by `StorX-API.php` receiver script.
 
 > Use [StorX-Remote](https://github.com/aaviator42/StorX-Remote) to easily interact with this API over the network from PHP scripts. 
 > If you're using StorX-Remote, then you can safely ignore everything about endpoints and requests in this doc, the remote library will handle everything for you.
@@ -18,16 +18,18 @@ Simply place your DB files, `StorX.php` and `receiver.php` on a server, and now 
 
 ## Configuration
 
-Place `receiver.php` and `StorX.php` in the same folder, or modify the `require` statement at the top of the receiver to point to wherever `StorX.php` is.
+Place `StorX-API.php` and `StorX.php` in the same folder, or modify the `require` statement at the top of the API file to point to wherever `StorX.php` is. You can rename the API file.
 
 In `StorX.php`, ensure that `THROW_EXCEPTIONS` is set to `FALSE`.
 
-There are three constants that you can modify at the top of `receiver.php`:
+There are a few constants that you can modify at the top of `StorX-API.php`:
  * `DATA_DIR`: Points to the root directory where DB files are stored. Note that the API *does not disallow* requests to DB files outside of this folder.
  * `USE_AUTH`: If this is `true`, then API requests will fail if they don't include the correct password in the payload. 
  * `PASSWORD_HASH`: A hash generated using PHP's `password_hash()` with `PASSWORD_BCRYPT`.  
  See [this](https://github.com/aaviator42/hashgen) script to make simplify this process. 
  Default password is `1234`. Obviously, do not use this.
+ * `KEY_OUTPUT_SERIALIZATION`: If set to `PHP`, then when the `readKey` endpoint returns values, they're `serialize()`-ed before JSON encoding, for maximum compatibility. This is helpful because JSON encoding is _not_ perfect, and sometimes modifies data (see [this](https://www.php.net/manual/en/function.json-encode.php) page).
+ * `JSON_SERIALIZATION_FLAGS`: Flags to be passed to `json_encode()`. See [this](https://www.php.net/manual/en/json.constants.php) page.
  
 
 ## Stuff you should know
@@ -54,13 +56,16 @@ For example, let's say the API receiver password is `1234` and you want to write
 ```
 
 ## Output
-The API returns an JSON-encoded associative array, with the following keys:
+The API returns an JSON-encoded associative array, with the following:
  * `error`: 0 if all okay, 1 if error occurs while the API processes the request.
  * `errorMessage`: Contains an error message if an error takes place.
  * `returnCode`: Contains the value returned by the function mapped to the endpoint
 
-Addionally, `/readKey`'s output also contains this key:
- * `keyValue`: `base64_encode(serialize($keyValue))`
+`/readKey`'s output additionally contains these:
+ * `keyValue`: `serialize($keyValue)` if `KEY_OUTPUT_SERIALIZATION` is set to `PHP`, otherwise just `$keyValue`.
+ * `keyName`: the `keyName` passed in input
+ * `keyOutputSerialization`: the serialization method configured by the user. Defaults to `PHP` is the API is being accessed by [StorX-Remote](https://github.com/aaviator42/StorX-Remote).
+ 
 
 
 <br>
@@ -98,12 +103,16 @@ PUT    | /modifyKey | Maps to `\StorX\Sx::modifyKey()` | `filename`, `keyName`, 
 DELETE | /deleteFile | Maps to `\StorX\deleteFile()` | `filename`
 DELETE | /deleteKey | Maps to `\StorX\Sx::deleteKey()` | `filename`, `keyName`
 
-There's a special `GET` endpoint `ping` that doesn't require authentication. It is used to ensure that the remote and receiver are of matching versions. The input is expected to have a single key `version` with a string value containing the version of the remote. The output contains two keys, `version` that contains the receiver's version, and `pong` that contains `OK` if the versions match, and `ERR` if they don't. 
+There's a special `GET` endpoint `ping` that doesn't require authentication. It is used to ensure that the [remote](https://github.com/aaviator42/StorX-Remote) and API receiver are of matching versions. This endpoint can be used to check the version of the API receiver script.
 
+The input is expected to have a key `version` with a corresponding string value containing the version of the remote. The output is a JSON-encoded associative array containing three key-value pairs:
+1. `version` that contains the API receiver script's version
+2. `pong` that contains `OK` if the versions match, and `ERR` if they don't. 
+3. `keyOutputSerialization`: the serialization method configured by the user for the `readKey` endpoint.
 
 
 
  ----
  
- Documentation updated `2020-10-11`
+ Documentation updated `2021-12-31`
 
