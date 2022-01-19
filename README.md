@@ -1,7 +1,7 @@
 # StorX-API
 A REST API for [StorX](https://github.com/aaviator42/StorX).
 
-Current library version: `3.6` | `2021-12-31`  
+Current library version: `3.7` | `2022-01-18`  
 
 
 License: `AGPLv3`
@@ -28,11 +28,12 @@ There are a few constants that you can modify at the top of `StorX-API.php`:
  * `PASSWORD_HASH`: A hash generated using PHP's `password_hash()` with `PASSWORD_BCRYPT`.  
  See [this](https://github.com/aaviator42/hashgen) script to make simplify this process. 
  Default password is `1234`. Obviously, do not use this.
- * `KEY_OUTPUT_SERIALIZATION`: If set to `PHP`, then when the `readKey` endpoint returns values, they're `serialize()`-ed before JSON encoding, for maximum compatibility. This is helpful because JSON encoding is _not_ perfect, and sometimes modifies data (see [this](https://www.php.net/manual/en/function.json-encode.php) page).
+ * `KEY_OUTPUT_SERIALIZATION`: If set to `PHP`, then when the `readKey` and `readAllKeys` endpoints return values, they're `serialize()`-ed before JSON encoding, for maximum compatibility. This is helpful because JSON encoding is _not_ perfect, and sometimes modifies data (see [this](https://www.php.net/manual/en/function.json-encode.php) page).
  * `JSON_SERIALIZATION_FLAGS`: Flags to be passed to `json_encode()`. See [this](https://www.php.net/manual/en/json.constants.php) page.
  
 
 ## Stuff you should know
+ * Ensure that the versions of StorX and StorX-API match!
  * Unlike regular `StorX`, a separate request does not need to be made to write changes made to DB files to disk. All changes are written to disk after each key write/modify/delete request.
 
 ## Requests
@@ -64,7 +65,11 @@ The API returns an JSON-encoded associative array, with the following:
 `/readKey`'s output additionally contains these:
  * `keyValue`: `serialize($keyValue)` if `KEY_OUTPUT_SERIALIZATION` is set to `PHP`, otherwise just `$keyValue`.
  * `keyName`: the `keyName` passed in input
- * `keyOutputSerialization`: the serialization method configured by the user. Defaults to `PHP` is the API is being accessed by [StorX-Remote](https://github.com/aaviator42/StorX-Remote).
+ * `keyOutputSerialization`: the serialization method configured by the user. Defaults to `PHP` if the API is being accessed by [StorX-Remote](https://github.com/aaviator42/StorX-Remote).
+ 
+`/readAllKeys`'s output additionally contains these:
+ * `keyArray`: an associative array containing all keys from the DB file. If `KEY_OUTPUT_SERIALIZATION` is set to `PHP`, then it is `serialize()`-ed.
+ * `keyOutputSerialization`: the serialization method configured by the user. Defaults to `PHP` if the API is being accessed by [StorX-Remote](https://github.com/aaviator42/StorX-Remote).
  
 
 
@@ -96,6 +101,7 @@ method | endpoint | description | input values
 -------|----------|-------------|--------------
 GET    | /checkFile | Maps to `\StorX\checkFile()` | `filename`
 GET    | /readKey | Maps to `\StorX\Sx::readKey()` | `filename`, `keyName`
+GET    | /readKey | Maps to `\StorX\Sx::readKey()` | `filename`
 GET    | /checkKey | Maps to `\StorX\Sx::checkKey()` | `filename`, `keyName`
 PUT    | /createFile | Maps to `\StorX\createFile()` | `filename`
 PUT    | /writeKey | Maps to `\StorX\Sx::writeKey()` | `filename`, `keyName`, `keyValue`
@@ -114,5 +120,5 @@ The input is expected to have a key `version` with a corresponding string value 
 
  ----
  
- Documentation updated `2021-12-31`
+ Documentation updated `2022-01-18`
 
