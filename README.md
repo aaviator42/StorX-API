@@ -101,7 +101,7 @@ method | endpoint | description | input values
 -------|----------|-------------|--------------
 GET    | /checkFile | Maps to `\StorX\checkFile()` | `filename`
 GET    | /readKey | Maps to `\StorX\Sx::readKey()` | `filename`, `keyName`
-GET    | /readKey | Maps to `\StorX\Sx::readKey()` | `filename`
+GET    | /readAllKeys | Maps to `\StorX\Sx::readAllKeys()` | `filename`
 GET    | /checkKey | Maps to `\StorX\Sx::checkKey()` | `filename`, `keyName`
 PUT    | /createFile | Maps to `\StorX\createFile()` | `filename`
 PUT    | /writeKey | Maps to `\StorX\Sx::writeKey()` | `filename`, `keyName`, `keyValue`
@@ -120,5 +120,5 @@ The input is expected to have a key `version` with a corresponding string value 
 
  ----
  
- Documentation updated `2022-01-18`
+ Documentation updated `2022-01-19`
 
