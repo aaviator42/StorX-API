@@ -27,7 +27,7 @@ There are a few constants that you can modify at the top of `StorX-API.php`:
  * `USE_AUTH`: If this is `true`, then API requests will fail if they don't include the correct password in the payload. 
  * `PASSWORD_HASH`: A hash generated using PHP's `password_hash()` with `PASSWORD_BCRYPT`.  
  See [this](https://github.com/aaviator42/hashgen) script to make simplify this process. 
- Default password is `1234`. Obviously, do not use this.
+ Default password is `1234`. Obviously, change this before use.
  * `KEY_OUTPUT_SERIALIZATION`: If set to `PHP`, then when the `readKey` and `readAllKeys` endpoints return values, they're `serialize()`-ed before JSON encoding, for maximum compatibility. This is helpful because JSON encoding is _not_ perfect, and sometimes modifies data (see [this](https://www.php.net/manual/en/function.json-encode.php) page).
  * `JSON_SERIALIZATION_FLAGS`: Flags to be passed to `json_encode()`. See [this](https://www.php.net/manual/en/json.constants.php) page.
  
