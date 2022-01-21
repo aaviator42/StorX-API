@@ -15,7 +15,7 @@ StorX DB file format version: 3.1
 //---CONFIGURATION---
 const DATA_DIR = "./"; //Include trailing slash!
 
-const USE_AUTH = FALSE; //TRUE = Require password; FALSE = Open
+const USE_AUTH = TRUE; //TRUE = Require password; FALSE = Open
 const PASSWORD_HASH = '$2y$10$ZuHv1ksKmna0ch1rChhnnu3TP.2WobqHsvwcyWDWzlr0Z7hjclECa'; //Use password_hash()
 
 const KEY_OUTPUT_SERIALIZATION = "JSON"; //For readKey(): "PHP" = serialize(); "JSON" = json_encode()
@@ -56,7 +56,7 @@ if(strpos($_SERVER['HTTP_USER_AGENT']??null, "StorX Remote") !== false){
 
 if(!(($method === 'GET') && ($endpointArray[0] === 'ping'))){
 	if(USE_AUTH){
-		if(!password_verify($input["password"], PASSWORD_HASH)){
+		if(!isset($input["password"]) || !password_verify($input["password"], PASSWORD_HASH)){
 			errorAuthFailed();
 		}
 	}
