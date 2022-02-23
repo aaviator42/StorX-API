@@ -18,7 +18,9 @@ const DATA_DIR = "./"; //Include trailing slash!
 const USE_AUTH = TRUE; //TRUE = Require password; FALSE = Open
 const PASSWORD_HASH = '$2y$10$0kYYaXEpk2WDsz6mHVwHvuzsvUGcnSsV37MZE90K3v4hGd/jr4iJO'; //Use password_hash()
 
-const KEY_OUTPUT_SERIALIZATION = "JSON"; //For readKey(): "PHP" = serialize(); "JSON" = json_encode()
+const KEY_OUTPUT_SERIALIZATION = "JSON"; 	//For readKey() and readAllKeys()
+											//"PHP" = serialize(); "JSON" = json_encode()
+
 const JSON_SERIALIZATION_FLAGS = JSON_PRETTY_PRINT; //See https://www.php.net/manual/en/json.constants.php
 
 
@@ -317,6 +319,10 @@ function writeKey(){
 	$keyName = $input["keyName"];
 	$keyValue = $input["keyValue"];
 	
+	if($input["keyInputSerialization"] === "PHP"){
+		$keyValue = unserialize($keyValue);
+	}
+	
 	$sx = new \StorX\Sx;
 	
 	if($sx->openFile($filename, 1) !== 1){
@@ -355,6 +361,10 @@ function modifyKey(){
 	$keyName = $input["keyName"];
 	$keyValue = $input["keyValue"];
 	
+	if($input["keyInputSerialization"] === "PHP"){
+		$keyValue = unserialize($keyValue);
+	}
+	
 	$sx = new \StorX\Sx;
 	
 	if($sx->openFile($filename, 1) !== 1){
@@ -392,6 +402,10 @@ function modifyMultipleKeys(){
 	$filename = DATA_DIR . $input["filename"];
 	$keyArray = $input["keyArray"];
 	
+	if($input["keyInputSerialization"] === "PHP"){
+		$keyArray = unserialize($keyArray);
+	}
+	
 	$sx = new \StorX\Sx;
 	
 	if($sx->openFile($filename, 1) !== 1){
@@ -402,8 +416,6 @@ function modifyMultipleKeys(){
 	} else {
 		$keyValue;
 		$output["returnCode"] = $sx->modifyMultipleKeys($keyArray);
-		error_log($output["returnCode"]);
-		error_log(var_export($keyArray, true));
 		if($output["returnCode"] !== 1){
 			$output["error"] = 1;
 			$output["errorMessage"] = "Unable to modify keys.";
