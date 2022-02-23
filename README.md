@@ -1,8 +1,7 @@
 # StorX-API
 A REST API for [StorX](https://github.com/aaviator42/StorX).
 
-Current library version: `3.7` | `2022-01-18`  
-
+Current library version: `4.1` | `2022-02-22`  
 
 License: `AGPLv3`
 
@@ -40,7 +39,6 @@ There are a few constants that you can modify at the top of `StorX-API.php`:
 
 > **Note:** You can simplify interacting with this API from other PHP scripts using [StorX-Remote](https://github.com/aaviator42/StorX-Remote). Then you don't have to bother with any of the following.
 
-
 Refer below for a list of endpoints, and what HTTP methods should be used to interact with them. In your request body, include a JSON-encoded associative array with the necessary data. 
 
 If the receiver is using authentication, then include the password as a key in the payload.
@@ -50,11 +48,29 @@ For example, let's say the API receiver password is `1234` and you want to write
 ```json
 {
   "password": "1234",
-  "filename": "testDB.dat",
+  "filename": "testDB.db",
   "keyName": "username",
   "keyValue": "aaviator42"
 }
 ```
+
+Sometimes the JSON encoding process can be lossy, or result in some data being changed. To avoid this, when making `writeKey`, `modifyKey` or `modifyMultipleKeys` requests, you can `serialize()` `$keyValue` or `$keyArray` before `json_encode()`. If you're doing this, then in the request body include the following key:
+```json
+  "keyInputSerialization": "PHP"
+```
+
+For example, a request to `/modifyMultipleKeys` might be:
+
+```json
+{
+  "filename": "testDB.db",
+  "keyInputSerialization": "PHP",
+  "keyArray": "a:2:{s:5:\"key_1\";s:7:\"value_1\";s:5:\"key_2\";s:7:\"value_2\";}",
+  "password": "password1234",
+  "version": "4.0"
+}
+```
+
 
 ## Output
 The API returns an JSON-encoded associative array, with the following:
@@ -99,14 +115,15 @@ value  | description
 
 method | endpoint | description | input values 
 -------|----------|-------------|--------------
-GET    | /checkFile | Maps to `\StorX\checkFile()` | `filename`
+GET    | /checkFile | Maps to `\StorX\Sx::checkFile()` | `filename`
 GET    | /readKey | Maps to `\StorX\Sx::readKey()` | `filename`, `keyName`
 GET    | /readAllKeys | Maps to `\StorX\Sx::readAllKeys()` | `filename`
 GET    | /checkKey | Maps to `\StorX\Sx::checkKey()` | `filename`, `keyName`
-PUT    | /createFile | Maps to `\StorX\createFile()` | `filename`
+PUT    | /createFile | Maps to `\StorX\Sx::createFile()` | `filename`
 PUT    | /writeKey | Maps to `\StorX\Sx::writeKey()` | `filename`, `keyName`, `keyValue`
 PUT    | /modifyKey | Maps to `\StorX\Sx::modifyKey()` | `filename`, `keyName`, `keyValue`
-DELETE | /deleteFile | Maps to `\StorX\deleteFile()` | `filename`
+PUT    | /modifyMultipleKeys | Maps to `\StorX\Sx::modifyMultipleKeys()` | `filename`, `keyArray`
+DELETE | /deleteFile | Maps to `\StorX\Sx::deleteFile()` | `filename`
 DELETE | /deleteKey | Maps to `\StorX\Sx::deleteKey()` | `filename`, `keyName`
 
 There's a special `GET` endpoint `ping` that doesn't require authentication. It is used to ensure that the [remote](https://github.com/aaviator42/StorX-Remote) and API receiver are of matching versions. This endpoint can be used to check the version of the API receiver script.
@@ -114,11 +131,11 @@ There's a special `GET` endpoint `ping` that doesn't require authentication. It 
 The input is expected to have a key `version` with a corresponding string value containing the version of the remote. The output is a JSON-encoded associative array containing three key-value pairs:
 1. `version` that contains the API receiver script's version
 2. `pong` that contains `OK` if the versions match, and `ERR` if they don't. 
-3. `keyOutputSerialization`: the serialization method configured by the user for the `readKey` endpoint.
+3. `keyOutputSerialization`: the serialization method configured for the `readKey` and `readAllKeys` endpoints.
 
 
 
  ----
  
- Documentation updated `2022-01-19`
+ Documentation updated `2022-02-22`
 
