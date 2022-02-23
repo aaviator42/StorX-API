@@ -3,12 +3,12 @@
 StorX API Receiver
 by @aaviator42
 
-API Receiver version: 3.7
-StorX.php version: 3.7
+StorX API Receiver version: 4.1
+StorX.php version: 4.1
 
 StorX DB file format version: 3.1
 
-2022-01-18
+2022-02-22
 
 */
 
@@ -16,7 +16,7 @@ StorX DB file format version: 3.1
 const DATA_DIR = "./"; //Include trailing slash!
 
 const USE_AUTH = TRUE; //TRUE = Require password; FALSE = Open
-const PASSWORD_HASH = '$2y$10$ZuHv1ksKmna0ch1rChhnnu3TP.2WobqHsvwcyWDWzlr0Z7hjclECa'; //Use password_hash()
+const PASSWORD_HASH = '$2y$10$0kYYaXEpk2WDsz6mHVwHvuzsvUGcnSsV37MZE90K3v4hGd/jr4iJO'; //Use password_hash()
 
 const KEY_OUTPUT_SERIALIZATION = "JSON"; //For readKey(): "PHP" = serialize(); "JSON" = json_encode()
 const JSON_SERIALIZATION_FLAGS = JSON_PRETTY_PRINT; //See https://www.php.net/manual/en/json.constants.php
@@ -45,7 +45,7 @@ $output = array(
 
 //If API is being accessed by StorX Remote, 
 //force use PHP's serialize() for key read to maximize compatibility
-if(strpos($_SERVER['HTTP_USER_AGENT']??null, "StorX Remote") !== false){
+if(isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], "StorX Remote") !== false){
 	$output["keyOutputSerialization"] = "PHP";
 } else {
 	$output["keyOutputSerialization"] = KEY_OUTPUT_SERIALIZATION;
@@ -75,6 +75,11 @@ switch($method){
 			case 'modifyKey':
 				modifyKey();
 			break;
+			case 'modifyMultipleKeys':
+				modifyMultipleKeys();
+			break;
+			case 'multiCommands':
+				multiCommands();
 			default:
 				errorInvalidRequest();
 			break;			
@@ -169,9 +174,9 @@ function printOutput($code = 200){
 function pong(){
 	global $input, $output;
 	
-	$output["version"] = "3.7";
+	$output["version"] = "4.0";
 	
-	if($input["version"] === "3.7"){
+	if($input["version"] === "4.0"){
 		$output["pong"] = "OK";
 	} else {
 		$output["pong"] = "ERR";
@@ -187,8 +192,9 @@ function pong(){
 function createFile(){
 	global $input, $output;
 	
+	$sx = new \StorX\Sx;
 	$filename = DATA_DIR . $input["filename"];
-	$output["returnCode"] = \StorX\createFile($filename);
+	$output["returnCode"] = $sx->createFile($filename);
 	
 	if($output["returnCode"] === 1){
 		printOutput(201);
@@ -203,8 +209,9 @@ function createFile(){
 function checkFile(){
 	global $input, $output;
 	
+	$sx = new \StorX\Sx;
 	$filename = DATA_DIR . $input["filename"];
-	$output["returnCode"] = \StorX\checkFile($filename);
+	$output["returnCode"] = $sx->checkFile($filename);
 	printOutput(200);
 	exit(0);
 	
@@ -213,8 +220,9 @@ function checkFile(){
 function deleteFile(){
 	global $input, $output;
 	
+	$sx = new \StorX\Sx;
 	$filename = DATA_DIR . $input["filename"];
-	$output["returnCode"] = \StorX\deleteFile($filename);
+	$output["returnCode"] = $sx->deleteFile($filename);
 	if($output["returnCode"] === 1){
 		printOutput(200);
 	} else {
@@ -361,6 +369,44 @@ function modifyKey(){
 		if($output["returnCode"] !== 1){
 			$output["error"] = 1;
 			$output["errorMessage"] = "Unable to modify key.";
+		}
+		
+		if($sx->closeFile() !== 1){
+			$output["returnCode"] = -3;
+			$output["error"] = 1;
+			$output["errorMessage"] = "Unable to write changes to DB file.";
+		}
+	}
+	
+	if($output["returnCode"] === 1){
+		printOutput(200);
+	} else {
+		printOutput(409);
+	}
+	exit(0);
+}
+
+function modifyMultipleKeys(){
+	global $input, $output;
+	
+	$filename = DATA_DIR . $input["filename"];
+	$keyArray = $input["keyArray"];
+	
+	$sx = new \StorX\Sx;
+	
+	if($sx->openFile($filename, 1) !== 1){
+		//error opening file 
+		$output["returnCode"] = -2;
+		$output["error"] = 1;
+		$output["errorMessage"] = "Unable to open DB file.";
+	} else {
+		$keyValue;
+		$output["returnCode"] = $sx->modifyMultipleKeys($keyArray);
+		error_log($output["returnCode"]);
+		error_log(var_export($keyArray, true));
+		if($output["returnCode"] !== 1){
+			$output["error"] = 1;
+			$output["errorMessage"] = "Unable to modify keys.";
 		}
 		
 		if($sx->closeFile() !== 1){
